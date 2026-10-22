@@ -121,7 +121,7 @@ STANDARD_BAG_INFO_HEADERS = [
 ]
 
 CHECKSUM_ALGOS = hashlib.algorithms_guaranteed
-DEFAULT_CHECKSUMS = ["sha256", "sha512"]
+DEFAULT_CHECKSUMS = ["sha512"]
 
 #: Block size used when reading files for hashing:
 HASH_BLOCK_SIZE = 512 * 1024
