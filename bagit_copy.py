@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Create a BagIt bag from an existing payload or bag while preserving metadata order.
 
-This wrapper script is intentionally conservative:
+This wrapper is intentionally conservative:
 - source bags are validated before use
 - if the source is an existing bag, only the payload directory is copied
 - if the source is a plain directory, the whole directory tree is copied
@@ -16,19 +16,19 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import re
 import shutil
 import sys
 from collections import OrderedDict
 from datetime import date
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-SRC_DIR = ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
-import bagit  # type: ignore  # noqa: E402
+try:
+    import bagit  # type: ignore
+except ModuleNotFoundError as exc:  # pragma: no cover - CLI failure path
+    raise SystemExit(
+        "This script requires a BagIt implementation to be installed in the active Python environment. "
+        "Install it first, for example: python -m pip install bagit or install from a Git URL."
+    ) from exc
 
 DEFAULT_HASHES = ["sha512"]
 
@@ -133,7 +133,7 @@ def _custom_bag_info_writer(path: Path, bag_info: OrderedDict[str, object]) -> N
     """Write bag-info.txt preserving insertion order.
 
     The upstream library writes bag-info.txt using sorted(bag_info.keys()), which
-    reorders metadata. This helper preserves the order that the caller expects.
+    reorders metadata. This helper preserves the order expected by the caller.
     """
     with path.open("w", encoding="utf-8", newline="\n") as handle:
         for key, values in bag_info.items():
@@ -165,7 +165,11 @@ def _merge_metadata(*mappings: OrderedDict[str, object]) -> OrderedDict[str, obj
     return merged
 
 
-def _build_metadata(source_bag_info: OrderedDict[str, object], info_file_entries: OrderedDict[str, object], cli_entries: OrderedDict[str, object]) -> OrderedDict[str, object]:
+def _build_metadata(
+        source_bag_info: OrderedDict[str, object],
+        info_file_entries: OrderedDict[str, object],
+        cli_entries: OrderedDict[str, object]
+        ) -> OrderedDict[str, object]:
     merged = _merge_metadata(source_bag_info, info_file_entries, cli_entries)
 
     # Preserve library defaults only when they are not explicitly supplied.
@@ -290,5 +294,3 @@ if __name__ == "__main__":
     except Exception as exc:  # pragma: no cover - CLI failure path
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(1)
-"""
-} Erotisk to=functions.create_or_update_file  <>
