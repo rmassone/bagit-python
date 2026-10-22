@@ -72,7 +72,7 @@ class TestSingleProcessValidation(SelfCleaningTestCase):
         return bag.validate(*args, **kwargs)
 
     def test_make_bag_sha1_sha256_manifest(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["sha1", "sha256"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["sha1", "sha256"])
         # check that relevant manifests are created
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha1.txt")))
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha256.txt")))
@@ -80,7 +80,7 @@ class TestSingleProcessValidation(SelfCleaningTestCase):
         self.assertTrue(self.validate(bag, fast=True))
 
     def test_make_bag_md5_sha256_manifest(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["md5", "sha256"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["md5", "sha256"])
         # check that relevant manifests are created
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-md5.txt")))
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha256.txt")))
@@ -88,7 +88,7 @@ class TestSingleProcessValidation(SelfCleaningTestCase):
         self.assertTrue(self.validate(bag, fast=True))
 
     def test_make_bag_md5_sha1_sha256_manifest(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["md5", "sha1", "sha256"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["md5", "sha1", "sha256"])
         # check that relevant manifests are created
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-md5.txt")))
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha1.txt")))
@@ -454,7 +454,7 @@ class TestSingleProcessValidation(SelfCleaningTestCase):
     @unittest.skipIf(sys.platform.startswith("win"), "This unit test is not yet supported on Windows")
     def test_sha1_tagfile(self):
         info = {"Bagging-Date": "1970-01-01", "Contact-Email": "ehs@pobox.com"}
-        bag = bagit.make_bag(self.tmpdir, checksum=["sha1"], bag_info=info)
+        bag = bagit.make_bag(self.tmpdir, checksums=["sha1"], bag_info=info)
         self.assertTrue(os.path.isfile(j(self.tmpdir, "tagmanifest-sha1.txt")))
         self.assertEqual(
             # "a8f4334b9f343621ad9d083f7acf3d02d6f0fc5d",
@@ -464,7 +464,7 @@ class TestSingleProcessValidation(SelfCleaningTestCase):
 
     @unittest.skipIf(sys.platform.startswith("win"), "This unit test is not yet supported on Windows")
     def test_validate_unreadable_file(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["md5"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["md5"])
         os.chmod(j(self.tmpdir, "data/loc/2478433644_2839c5e8b8_o_d.jpg"), 0)
         self.assertRaises(bagit.BagValidationError, self.validate, bag, fast=False)
 
@@ -571,7 +571,7 @@ class TestBag(SelfCleaningTestCase):
 
     @unittest.skipIf(sys.platform.startswith("win"), "This unit test is not yet supported on Windows")
     def test_make_bag_sha1_manifest(self):
-        bagit.make_bag(self.tmpdir, checksum=["sha1"])
+        bagit.make_bag(self.tmpdir, checksums=["sha1"])
         # check manifest
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha1.txt")))
         manifest_txt = slurp_text_file(j(self.tmpdir, "manifest-sha1.txt")).splitlines()
@@ -597,7 +597,7 @@ class TestBag(SelfCleaningTestCase):
         )
 
     def test_make_bag_sha256_manifest(self):
-        bagit.make_bag(self.tmpdir, checksum=["sha256"])
+        bagit.make_bag(self.tmpdir, checksums=["sha256"])
         # check manifest
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha256.txt")))
         manifest_txt = slurp_text_file(
@@ -621,7 +621,7 @@ class TestBag(SelfCleaningTestCase):
         )
 
     def test_make_bag_sha512_manifest(self):
-        bagit.make_bag(self.tmpdir, checksum=["sha512"])
+        bagit.make_bag(self.tmpdir, checksums=["sha512"])
         # check manifest
         self.assertTrue(os.path.isfile(j(self.tmpdir, "manifest-sha512.txt")))
         manifest_txt = slurp_text_file(
@@ -646,7 +646,7 @@ class TestBag(SelfCleaningTestCase):
 
     def test_make_bag_unknown_algorithm(self):
         self.assertRaises(
-            ValueError, bagit.make_bag, self.tmpdir, checksum=["not-really-a-name"]
+            ValueError, bagit.make_bag, self.tmpdir, checksums=["not-really-a-name"]
         )
 
     def test_make_bag_with_empty_directory(self):
@@ -681,7 +681,7 @@ class TestBag(SelfCleaningTestCase):
         os.chmod(self.tmpdir, 0)
 
         with self.assertRaises(bagit.BagError) as error_catcher:
-            bagit.make_bag(self.tmpdir, checksum=["sha256"])
+            bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         self.assertEqual(
             "Missing permissions to move all files and directories",
@@ -694,7 +694,7 @@ class TestBag(SelfCleaningTestCase):
         os.chmod(j(self.tmpdir, "loc"), 0o200)
 
         with self.assertRaises(bagit.BagError) as error_catcher:
-            bagit.make_bag(self.tmpdir, checksum=["sha256"])
+            bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         self.assertEqual(
             "Read permissions are required to calculate file fixities",
@@ -709,7 +709,7 @@ class TestBag(SelfCleaningTestCase):
             os.chmod(j(self.tmpdir, path_suffix), 0o500)
 
         with self.assertRaises(bagit.BagError) as error_catcher:
-            bagit.make_bag(self.tmpdir, checksum=["sha256"])
+            bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         self.assertEqual(
             "Missing permissions to move all files and directories",
@@ -721,7 +721,7 @@ class TestBag(SelfCleaningTestCase):
         os.chmod(j(self.tmpdir, "loc", "2478433644_2839c5e8b8_o_d.jpg"), 0)
 
         with self.assertRaises(bagit.BagError) as error_catcher:
-            bagit.make_bag(self.tmpdir, checksum=["sha256"])
+            bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         self.assertEqual(
             "Read permissions are required to calculate file fixities",
@@ -889,7 +889,7 @@ Tag-File-Character-Encoding: UTF-8
 
     @unittest.skipIf(sys.platform.startswith("win"), "This unit test is not yet supported on Windows")
     def test_save_bag_to_unwritable_directory(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["sha256"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         os.chmod(self.tmpdir, 0)
 
@@ -904,7 +904,7 @@ Tag-File-Character-Encoding: UTF-8
 
     @unittest.skipIf(sys.platform.startswith("win"), "This unit test is not yet supported on Windows")
     def test_save_bag_with_unwritable_file(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["sha256"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["sha256"])
 
         os.chmod(os.path.join(self.tmpdir, "bag-info.txt"), 0)
 
@@ -953,7 +953,7 @@ Tag-File-Character-Encoding: UTF-8
         self.assertTrue(bag.is_valid())
 
     def test_save_baginfo_with_sha1(self):
-        bag = bagit.make_bag(self.tmpdir, checksum=["sha1", "md5"])
+        bag = bagit.make_bag(self.tmpdir, checksums=["sha1", "md5"])
         self.assertTrue(bag.is_valid())
         bag.save()
 
