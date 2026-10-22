@@ -1238,10 +1238,8 @@ def _parse_tags(tag_file):
 
 
 def _make_tag_file(bag_info_path, bag_info):
-    headers = sorted(bag_info.keys())
     with open_text_file(bag_info_path, "w") as f:
-        for h in headers:
-            values = bag_info[h]
+        for h, values in bag_info.items():
             if not isinstance(values, list):
                 values = [values]
             for txt in values:
