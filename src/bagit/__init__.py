@@ -19,15 +19,8 @@ from collections import defaultdict
 from datetime import date
 from functools import partial
 
-try:
-    from importlib.metadata import version
-except ImportError:
-    from importlib_metadata import version
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
+from importlib.metadata import version
+from urllib.parse import urlparse
 
 
 def find_locale_dir():
